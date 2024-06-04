@@ -2,7 +2,8 @@ import { createAnimations } from '@tamagui/animations-react-native';
 import { createInterFont } from '@tamagui/font-inter';
 import { createMedia } from '@tamagui/react-native-media-driver';
 import { shorthands } from '@tamagui/shorthands';
-import { themes, tokens } from '@tamagui/themes';
+import { tokens } from '@tamagui/themes';
+import { color, radius, size, space, themes, zIndex } from '@tamagui/themes'
 import { createTamagui, styled, SizableText, H1, YStack } from 'tamagui';
 
 const animations = createAnimations({
@@ -50,33 +51,8 @@ export const Subtitle = styled(SizableText, {
   size: '$9',
 });
 
-export const Button = styled(YStack, {
-  alignItems: 'center',
-  backgroundColor: '#6366F1',
-  borderRadius: 28,
-  hoverStyle: {
-    backgroundColor: '#5a5fcf',
-  },
-  justifyContent: 'center',
-  maxWidth: 500,
-  padding: 16,
-  shadowColor: '#000',
-  shadowOffset: {
-    height: 2,
-    width: 0,
-  },
-  shadowOpacity: 0.25,
-  shadowRadius: 3.84,
-});
-
-export const ButtonText = styled(SizableText, {
-  color: '#FFFFFF',
-  fontSize: 16,
-  fontWeight: '600',
-  textAlign: 'center',
-});
-
 const config = createTamagui({
+  defaultTheme: 'dark',
   light: {
     color: {
       background: 'gray',
