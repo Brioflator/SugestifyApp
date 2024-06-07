@@ -41,6 +41,7 @@ interface Image {
   width: number;
 }
 
+
 interface UserProfile {
   country: string;
   display_name: string;
