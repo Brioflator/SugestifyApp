@@ -95,14 +95,11 @@ export default function Details() {
           headerBackVisible: false,
           headerTitle() {
             return userProfile ? (
-              <UserInfo userProfile={userProfile} />
+                <UserInfo userProfile={userProfile} />
             ) : (
               <Text>Hello</Text>
             );
           },
-          headerRight() {
-            return <NowPlaying />
-          }
         }}
       />
       <ZStack flex={1} justifyContent="space-evenly" alignItems="center">
@@ -118,40 +115,10 @@ export default function Details() {
               <YStack justifyContent="space-between" alignContent='space-between'>
                 <XStack alignSelf="center" padding={"$4"}>
                   <Text fontSize={'$9'} fontWeight={'600'} color={theme.gray12}>
-                    Explore your music
+                    Analyze your music
                   </Text>
                 </XStack>
-                <View>
-                <XStack alignSelf="flex-start" padding={"$1"} paddingLeft={'$3'}>
-                  <Text fontSize={'$6'} fontWeight={'500'} color={theme.gray12}>
-                    Recent top tracks
-                  </Text>
-                </XStack>
-                <XStack alignSelf="center">
-                  <ScrollView horizontal>
-                    {trackArtistArray.map((track, index) => (
-                      <View key={index} padding={'$2'}> 
-                        <MusicCard
-
-
-                          key={index}
-                          title={track.name}
-                          music={track.music}
-                          artists={track.artists.join(', ')}
-                          image={track.albumImage}
-                          animation="quick"
-                          size="$4"
-                          width={200}
-                          height={200}
-                          scale={2}
-                          //hoverStyle={{ scale: 0.5 }}
-                          pressStyle={{ scale: 0.75 }}
-                        />
-                      </View>
-                    ))}
-                  </ScrollView>
-                </XStack>
-                </View>
+                
                 <Button onPress={handlePress}>Log Playlists</Button>
               </YStack>
             </View>

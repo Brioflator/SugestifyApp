@@ -18,11 +18,15 @@ export default function NavBar() {
           <Text color={'$gray12'} fontSize={'$2'}>Home</Text>
         </YStack>
         <YStack alignItems="center">
+        <Link href={{ pathname: '/discover' }} asChild>
           <LucideWandSparkles onPress={() => {}} color="white" />
+        </Link>
           <Text color={'$gray12'} fontSize={'$2'}>Discover</Text>
         </YStack>
         <YStack alignItems="center">
+        <Link href={{ pathname: '/analysis' }} asChild>
           <AudioLines onPress={() => {}} color="white" />
+        </Link>
           <Text color={'$gray12'} fontSize={'$2'}>Analysis</Text>
         </YStack>
         

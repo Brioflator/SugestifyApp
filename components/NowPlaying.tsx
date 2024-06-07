@@ -67,7 +67,7 @@ export default function NowPlaying() {
         setTrack(track);
         };
         fetchData();
-        const intervalId = setInterval(fetchData, 1000); // checks every second
+        const intervalId = setInterval(fetchData, 3000); // checks every second
 
     // cleanup function
     return () => clearInterval(intervalId);

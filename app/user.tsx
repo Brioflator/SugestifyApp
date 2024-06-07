@@ -57,7 +57,9 @@ interface UserProfile {
 }
 
 export default function UserPage() {
+  const theme = useTheme();
   const { name } = useLocalSearchParams();
+  const [localTheme, setLocalTheme] = useState<any>();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   useEffect(() => {
     const fetchData = async () => {
@@ -69,8 +71,19 @@ export default function UserPage() {
       // cleanup function
     };
   }, []);
-  const handlePress = () => {
-    console.log(userProfile?.external_urls.spotify);
+
+  useEffect(() => {
+    const fetchTheme = async () => {
+      const storedTheme = await AsyncStorage.getItem('localTheme');
+      setLocalTheme(storedTheme);
+    };
+  
+    fetchTheme();
+  }, []);
+
+  const handlePress = async (localTheme: string) => {
+    setLocalTheme(localTheme);
+    AsyncStorage.setItem('localTheme', localTheme);
   };
 
   const setThemes = async (theme: string) => {
@@ -82,23 +95,23 @@ export default function UserPage() {
     }
   };
 
-  const theme = useTheme();
 
   return (
     <>
       <Stack.Screen
         options={{
           headerTransparent: true,
+          headerTintColor: 'gray',
           headerTitle() {
             return (
-              <Text fontSize={'$6'} fontWeight={'600'} color={'$color1'}>
+              <Text fontSize={'$6'} fontWeight={'600'} color={'$gray10'}>
                 Profile
               </Text>
             );
           },
         }}
       />
-      <ZStack flex={1} justifyContent="space-evenly" alignItems="center">
+      <ZStack theme={localTheme} flex={1} justifyContent="space-evenly" alignItems="center">
         <View zIndex={1} flex={1} justifyContent="center" alignItems="center">
           <LinearGradient
             fullscreen
@@ -173,10 +186,11 @@ export default function UserPage() {
                   <YStack alignSelf="center" space>
                     <Button
                       variant="outlined"
+                      pressStyle={{borderColor: '$red10'}}
                       borderColor={'$red8'}
                       color={'$red8'}
                       backgroundColor={'$red1'}
-                      onPress={() => setThemes('red')}
+                      onPress={() => {setThemes('red'), handlePress('red')}}
                       size="$5"
                       >
                       Red
@@ -184,27 +198,30 @@ export default function UserPage() {
                     <Button
                       variant="outlined"
                       size="$5"
+                      pressStyle={{borderColor: '$blue10'}}
                       borderColor={'$blue8'}
                       color={'$blue8'}
                       backgroundColor={'$blue1'}
-                      onPress={() => setThemes('blue')}>
+                      onPress={() => {setThemes('blue'), handlePress('blue')}}>
                       Blue
                     </Button>
                     <Button
                       variant="outlined"
+                      pressStyle={{borderColor: '$green10'}}
                       borderColor={'$green8'}
                       color={'$green8'}
                       backgroundColor={'$green1'}
-                      onPress={() => setThemes('green')}
+                      onPress={() => {setThemes('green'), handlePress('green')}}
                       size="$5">
                       Green
                     </Button>
                     <Button
                       variant="outlined"
-                      borderColor={'$gray4'}
+                      pressStyle={{borderColor: '$gray10'}}
+                      borderColor={'$gray8'}
                       backgroundColor={'$gray1'}
                       color={'$gray4'}
-                      onPress={() => setThemes('dark')}
+                      onPress={() => {setThemes('dark'), handlePress('dark')}}
                       size="$5">
                       Dark
                     </Button>
@@ -212,37 +229,41 @@ export default function UserPage() {
                   <YStack alignSelf="center" space>
                     <Button
                       variant="outlined"
+                      pressStyle={{borderColor: '$orange10'}}
                       borderColor={'$orange8'}
                       color={'$orange8'}
                       backgroundColor={'$orange1'}
-                      onPress={() => setThemes('orange')}
+                      onPress={() => {setThemes('orange'), handlePress('orange')}}
                       size="$5">
                       Orange
                     </Button>
                     <Button
                       variant="outlined"
+                      pressStyle={{borderColor: '$yellow10'}}
                       borderColor={'$yellow8'}
                       color={'$yellow8'}
                       backgroundColor={'$yellow1'}
-                      onPress={() => setThemes('yellow')}
+                      onPress={() => {setThemes('yellow'), handlePress('yellow')}}
                       size="$5">
                       Yellow
                     </Button>
                     <Button
                       variant="outlined"
+                      pressStyle={{borderColor: '$pink10'}}
                       borderColor={'$pink8'}
                       color={'$pink8'}
                       backgroundColor={'$pink1'}
-                      onPress={() => setThemes('pink')}
+                      onPress={() => {setThemes('pink'), handlePress('pink')}}
                       size="$5">
                       Pink
                     </Button>
                     <Button
                       variant="outlined"
                       borderColor={'$purple8'}
+                      pressStyle={{borderColor: '$purple10'}}
                       color={'$purple8'}
                       backgroundColor={'$purple1'}
-                      onPress={() => setThemes('purple')}
+                      onPress={() => {setThemes('purple'), handlePress('purple')}}
                       size="$5">
                       Purple
                     </Button>
