@@ -3,9 +3,11 @@ import { Button, Card, Text, Image, XStack, View, YStack, Progress } from 'tamag
 import { LinearGradient } from 'tamagui/linear-gradient';
 import { Audio } from 'expo-av';
 import { useEffect, useState } from 'react';
-import { Play, Pause, Plus, Check } from 'lucide-react-native';
+import { Play, Pause, Heart, Check, X } from 'lucide-react-native';
+import { isLiked, likeTrack, unlikeTrack } from '~/utils/spotify';
 
 interface MusicCardProps extends CardProps {
+  trackId: string;
   title: string;
   artists: string;
   image: string;
@@ -14,6 +16,7 @@ interface MusicCardProps extends CardProps {
 }
 
 export default function MusicCard({
+  trackId,
   title,
   artists,
   image,
@@ -24,6 +27,26 @@ export default function MusicCard({
   const [isPlaying, setIsPlaying] = useState(false);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [progress, setProgress] = useState(0);
+  const [liked, setLiked] = useState(false);
+
+  useEffect(() => {
+    const checkIfLiked = async () => {
+      const likedStatus = await isLiked(trackId);
+      setLiked(likedStatus);
+    };
+
+    checkIfLiked();
+  }, [trackId]);
+
+  const handlePress = async () => {
+    if (!liked) {
+      const response = await likeTrack(trackId);
+    } else {
+      const response = await unlikeTrack(trackId);
+    }
+    setLiked(!liked);
+    // Optionally, handle unlike functionality here if needed
+  };
 
   const playSound = async () => {
     if (sound) {
@@ -44,7 +67,7 @@ export default function MusicCard({
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
-  
+
     if (isPlaying) {
       interval = setInterval(() => {
         setProgress((prevProgress) => {
@@ -62,7 +85,7 @@ export default function MusicCard({
     } else if (!isPlaying) {
       clearInterval(interval!);
     }
-  
+
     return () => {
       if (interval) {
         clearInterval(interval);
@@ -70,22 +93,21 @@ export default function MusicCard({
     };
   }, [isPlaying, progress, sound]);
 
-
   const truncateTitle = (title: string) => {
-    return title.length > 18 ? title.substring(0, 18) + "..." : title;
+    return title.length > 18 ? title.substring(0, 18) + '...' : title;
   };
 
   const formatArtists = (artists: string) => {
     const artistArray = artists.split(', ');
-  
+
     let result = '';
     if (artistArray.length > 2) {
       result = `${artistArray[0]}, ${artistArray[1]}, ...`;
     } else {
       result = artists;
     }
-  
-    return result.length > 16 ? result.substring(0, 16) + "..." : result;
+
+    return result.length > 16 ? result.substring(0, 16) + '...' : result;
   };
 
   return (
@@ -103,23 +125,44 @@ export default function MusicCard({
         </Card.Background>
       </Card>
       <View height={'$5'}>
-        <XStack flex={1} justifyContent="space-between" alignItems='center'>
-          <Button circular backgroundColor={'rgba(0, 0, 0, 0)'} onPress={playSound} pressStyle={{borderWidth: '$-0.25', backgroundColor: '$color2'}}>
-            {' '}
-            {isPlaying ? <Pause color={'white'} /> : <Play color={'white'} />}{' '}
+        <XStack flex={1} justifyContent="space-between" alignItems="center">
+          <Button
+            circular
+            backgroundColor={'rgba(0, 0, 0, 0)'}
+            onPress={music ? playSound : undefined}
+            pressStyle={{ borderWidth: '$-0.25', backgroundColor: '$color2' }}>
+            {''}
+            {music ? (
+              isPlaying ? (
+                <Pause color={'white'} />
+              ) : (
+                <Play color={'white'} />
+              )
+            ) : (
+              <X color={'white'} />
+            )}
           </Button>
-          <YStack alignItems='center'>
-            <Text fontSize={'$4'} fontWeight={'600'} color={'$gray12'}>{truncateTitle(title)}</Text>
-            <Text fontWeight={'400'} color={'$gray11'}>{formatArtists(artists)}</Text>
+          <YStack alignItems="center">
+            <Text fontSize={'$4'} fontWeight={'600'} color={'$gray12'}>
+              {truncateTitle(title)}
+            </Text>
+            <Text fontWeight={'400'} color={'$gray11'}>
+              {formatArtists(artists)}
+            </Text>
           </YStack>
           {saveable ? (
-            <Button circular backgroundColor={'rgba(0, 0, 0, 0)'} pressStyle={{borderWidth: '$-0.25', backgroundColor: '$color2'}}>
-              
-              {isPlaying ? <Check color={'white'} /> : <Plus color={'white'} />}
+            <Button
+              circular
+              onPress={handlePress}
+              backgroundColor={'rgba(0, 0, 0, 0)'}
+              pressStyle={{ borderWidth: '$-0.25', backgroundColor: '$color2' }}>
+              {liked ? <Heart fill={'lime'} /> : <Heart color={'white'} />}
             </Button>
-          ): (
-            <Button circular backgroundColor={'rgba(0, 0, 0, 0)'} pressStyle={{borderWidth: '$-0.25', backgroundColor: 'rgba(0, 0, 0, 0)'}}>
-            </Button>
+          ) : (
+            <Button
+              circular
+              backgroundColor={'rgba(0, 0, 0, 0)'}
+              pressStyle={{ borderWidth: '$-0.25', backgroundColor: 'rgba(0, 0, 0, 0)' }}></Button>
           )}
         </XStack>
         <Progress size={'$0.75'} value={progress}>

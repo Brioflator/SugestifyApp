@@ -148,10 +148,11 @@ export const getProfile = async () => {
     }
     
     const res = await fetch(`https://api.spotify.com/${endpoint}`, options);
-    if (res.status === 204) {
+    if (res.status === 204 || res.headers.get("Content-Length") === "0") {
       return null;
     }
-    return await res.json();
+    const responseData = await res.json();
+    return responseData || null;
   };
 
   export const getTopTracks = async (time_range: string, limit: number, offset: number = 0) => {
@@ -164,4 +165,32 @@ export const getProfile = async () => {
       return null;
     }
     return (await fetchWebApi("v1/me/player/currently-playing", "GET", null)).item;
+  }
+
+  export const isLiked = async (trackId: string) => {
+    return (await fetchWebApi(`v1/me/tracks/contains?ids=${trackId}`, "GET", null))[0];
+  }
+
+  export const likeTrack = async (trackId: string) => {
+    return await fetchWebApi(`v1/me/tracks?ids=${trackId}`, "PUT", null);
+  }
+
+  export const unlikeTrack = async (trackId: string) => {
+    return await fetchWebApi(`v1/me/tracks?ids=${trackId}`, "DELETE", null);
+  }
+
+  export const getHistory = async (limit: string) => {
+    return (await fetchWebApi(`v1/me/player/recently-played?limit=${limit}`, "GET", null)).items;
+  }
+
+  export const getPlaylists = async () => {
+    return (await fetchWebApi("v1/me/playlists", "GET", null)).items;
+  }
+
+  export const getTrackRecommendations = async (limit: number, seed_tracks?: string) => {
+    return (await fetchWebApi(`v1/recommendations?limit=${limit}&seed_tracks=${seed_tracks}`, "GET", null)).tracks;
+  }
+
+  export const getArtistRecommendations = async (limit: number, seed_artists?: string) => {
+    return (await fetchWebApi(`v1/recommendations?limit=${limit}&seed_artists=${seed_artists}`, "GET", null)).tracks;
   }
