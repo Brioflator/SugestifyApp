@@ -1,6 +1,6 @@
-import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { getHistory, getTrackRecommendations, getProfiles, getTopTracks } from '../utils/spotify';
-import { View, Text, XStack, ScrollView, useThemeName, Input, TabsContentProps } from 'tamagui';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import { getHistory, getTrackRecommendations, getProfiles, searchTracks } from '../utils/spotify';
+import { View, Text, XStack, ScrollView, useThemeName, Input } from 'tamagui';
 import {
   Button,
   YStack,
@@ -22,6 +22,7 @@ import NavBar from '~/components/NavBar';
 import { UserInfo } from '~/components/UserInfo';
 import { color } from '@tamagui/themes';
 import React from 'react';
+import { fetchResources, processTracks, fetchSongRecommendations } from '~/utils/nlp';
 
 interface UserProfile {
   images?: { url: string }[];
@@ -57,8 +58,9 @@ export default function Details() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [apiData, setApiData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<Error | null>(null);
   const [inputValue, setInputValue] = useState('');
+  const [nlpSuge, setNlpSuge] = useState<TrackNLP[][] | null>(null);
 
   const handleInputChange = (text: any) => {
     setInputValue(text);
@@ -66,26 +68,41 @@ export default function Details() {
 
   const handleGoPress = async () => {
     try {
-      // Replace 'your-api-endpoint' with the actual endpoint you wish to call
-      //const response = await axios.post('your-api-endpoint', { data: inputValue });
-      console.log(inputValue); // Handle the response as needed
+      console.log('began');
+      const data = await fetchSongRecommendations(inputValue);
+      console.log('ended'); // Handle the response as needed
+      const processedData = await processTracks(data);
+      console.log('processedData:', processedData);
+      setNlpSuge(processedData);
     } catch (error) {
       console.error(error); // Handle the error as needed
+      if (error instanceof Error) {
+        setError(error);
+      } else {
+        setError(new Error('Unknown error'));
+      }
     }
   };
 
   useEffect(() => {
-    fetch('stunning-loyal-gull.ngrok-free.app')
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchResourcesData = async () => {
+      try {
+        const data = await fetchResources();
+        console.log(data);
         setApiData(data);
         setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching data: ', error);
-        setError(error);
+      } catch (error) {
+        console.error('Failed to fetch resources:', error);
+        if (error instanceof Error) {
+          setError(error);
+        } else {
+          setError(new Error('Unknown error'));
+        }
         setIsLoading(false);
-      });
+      }
+    };
+
+    fetchResourcesData();
   }, []);
 
   useEffect(() => {
@@ -99,20 +116,18 @@ export default function Details() {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      //const topTracks = await getTopTracks('short_term', 10);
-      //setTopTracks(topTracks);
-    };
-    fetchData();
-    return () => {
-      // cleanup function
-    };
-  }, []);
-
   const theme = useTheme();
 
   const themeName = useThemeName();
+
+
+  type TrackNLP = {
+    id: string;
+    name: string;
+    artists: string[];
+    albumImage: string;
+    music: string;
+  };
 
   const [suggestions, setSuggestions] = useState<Track[] | null>(null);
 
@@ -156,7 +171,12 @@ export default function Details() {
       <Stack.Screen
         options={{
           title: 'Home',
-          headerTransparent: true,
+          headerBackground() {
+            return <LinearGradient
+          fullscreen
+          colors={['$color3', '$color3']}
+          />
+        },
           headerBackVisible: false,
           headerTitle() {
             return userProfile ? <UserInfo userProfile={userProfile} /> : <Text>Hello</Text>;
@@ -171,77 +191,103 @@ export default function Details() {
             start={[0, 1]}
             end={[0, 0]}
             locations={[0.5, 0.8]}>
-            <View paddingTop={'$12'} paddingHorizontal={'$4'}>
-              <YStack justifyContent="space-between" alignContent="space-between">
-                <XStack alignSelf="center" padding={'$4'}>
-                  <Text fontSize={'$9'} fontWeight={'600'} color={theme.gray12}>
-                    Discover new music
-                  </Text>
-                </XStack>
-                <YStack>
-                  <XStack alignItems="center" space="$2">
-                    <Input
-                      onChangeText={handleInputChange}
-                      value={inputValue}
-                      flex={1}
-                      size={'$3'}
-                      placeholder={`Enter Keywords`}
-                    />
-                    <Button onPress={handleGoPress} size={'$3'}>
-                      Go
-                    </Button>
-                  </XStack>
-                  <Separator marginVertical={5} alignSelf="auto" borderColor={'rgba(0, 0, 0, 0)'} />
-
-                  {isLoading ? (
-                    <Text>Loading...</Text>
-                  ) : error ? (
-                    <UnavailableService />
-                  ) : apiData ? (
-                    <View height={'200px'} backgroundColor={'$color1'}>
-                      <ScrollView padding={'$2'} horizontal>
-                        <Text>Succes</Text>
-                      </ScrollView>
-                    </View>
-                  ) : (
-                    <Text>Loading...</Text>
-                  )}
-                </YStack>
-                <Separator marginVertical={10} alignSelf="auto" borderColor={'rgba(0, 0, 0, 0)'} />
-
-                <View>
-                  <XStack alignSelf="flex-start" padding={'$1'} paddingLeft={'$3'}>
-                    <Text fontSize={'$6'} fontWeight={'500'} color={theme.gray12}>
-                      Today's suggestions
+            <ScrollView paddingHorizontal={'$0'}>
+              <View padding={'$3'}>
+                <YStack justifyContent="space-between" alignContent="space-between">
+                  <XStack alignSelf="center" padding={'$4'}>
+                    <Text fontSize={'$9'} fontWeight={'600'} color={theme.gray12}>
+                      Discover new music
                     </Text>
                   </XStack>
-                  <XStack alignSelf="center">
-                    <ScrollView horizontal>
-                      {trackArtistArray.map((track, index) => (
-                        <View key={index} padding={'$2'}>
-                          <MusicCard
-                            saveable
-                            key={index}
-                            title={track.name}
-                            music={track.music}
-                            trackId={track.id}
-                            artists={track.artists.join(', ')}
-                            image={track.albumImage}
-                            animation="quick"
-                            size="$4"
-                            width={200}
-                            height={200}
-                            scale={2}
-                            //hoverStyle={{ scale: 0.5 }}
-                            pressStyle={{ scale: 0.75 }}
-                          />
-                        </View>
-                      ))}
-                    </ScrollView>
-                  </XStack>
-                </View>
-              </YStack>
-            </View>
+                  <YStack>
+                    <XStack alignItems="center" space="$2">
+                      <Input
+                        onChangeText={handleInputChange}
+                        value={inputValue}
+                        flex={1}
+                        size={'$3'}
+                        placeholder={`Enter Keywords`}
+                      />
+                      <Button onPress={handleGoPress} size={'$3'}>
+                        Go
+                      </Button>
+                    </XStack>
+                    <Separator marginVertical={5} alignSelf="auto" borderColor={'rgba(0, 0, 0, 0)'} />
+
+                    {isLoading ? (
+                      <UnavailableService />
+                    ) : error ? (
+                      <UnavailableService />
+                    ) : apiData ? (
+                      <View height={'200px'} backgroundColor={'$color1'}>
+                        <ScrollView horizontal>
+                          {nlpSuge?.map((trackGroup, groupIndex) => (
+                            trackGroup.map((track, trackIndex) => (
+                              <View key={`${groupIndex}-${trackIndex}`} padding={'$2'}>
+                                <MusicCard
+                                  saveable
+                                  key={track.id}
+                                  title={track.name}
+                                  music={track.music}
+                                  trackId={track.id}
+                                  artists={track.artists.join(', ')}
+                                  image={track.albumImage}
+                                  animation="quick"
+                                  size="$4"
+                                  width={200}
+                                  height={200}
+                                  scale={2}
+                                  //hoverStyle={{ scale: 0.5 }}
+                                  pressStyle={{ scale: 0.75 }}
+                                />
+                              </View>
+                            ))
+                          ))}
+                        </ScrollView>
+                      </View>
+                    ) : (
+                      <UnavailableService />
+                    )}
+                  </YStack>
+                  <Separator marginVertical={10} alignSelf="auto" borderColor={'rgba(0, 0, 0, 0)'} />
+
+                  <View>
+                    <XStack alignSelf="flex-start" padding={'$1'} paddingLeft={'$3'}>
+                      <Text fontSize={'$6'} fontWeight={'500'} color={theme.gray12}>
+                        Today's suggestions
+                      </Text>
+                    </XStack>
+                    <XStack alignSelf="center">
+                      <ScrollView horizontal>
+                        {trackArtistArray.map((track, index) => (
+                          <View key={index} padding={'$2'}>
+                            <MusicCard
+                              saveable
+                              key={index}
+                              title={track.name}
+                              music={track.music}
+                              trackId={track.id}
+                              artists={track.artists.join(', ')}
+                              image={track.albumImage}
+                              animation="quick"
+                              size="$4"
+                              width={200}
+                              height={200}
+                              scale={2}
+                              //hoverStyle={{ scale: 0.5 }}
+                              pressStyle={{ scale: 0.75 }}
+                            />
+                          </View>
+                        ))}
+                      </ScrollView>
+                    </XStack>
+                  </View>
+                  <View height={'$11'}>
+                  <Separator marginVertical={15} alignSelf="auto" borderColor={'rgba(0, 0, 0, 0)'} />
+                    </View>
+                </YStack>
+              </View>
+            </ScrollView>
           </LinearGradient>
         </YStack>
         <View
@@ -256,26 +302,6 @@ export default function Details() {
     </>
   );
 }
-
-const TabsContent = (props: TabsContentProps) => {
-  return (
-    <Tabs.Content
-      backgroundColor="$background"
-      key="tab3"
-      padding="$2"
-      alignItems="center"
-      justifyContent="center"
-      flex={1}
-      borderColor="$background"
-      borderRadius="$2"
-      borderTopLeftRadius={0}
-      borderTopRightRadius={0}
-      borderWidth="$2"
-      {...props}>
-      {props.children}
-    </Tabs.Content>
-  );
-};
 
 const UnavailableService = () => {
   return (

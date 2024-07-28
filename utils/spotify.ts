@@ -194,3 +194,7 @@ export const getProfile = async () => {
   export const getArtistRecommendations = async (limit: number, seed_artists?: string) => {
     return (await fetchWebApi(`v1/recommendations?limit=${limit}&seed_artists=${seed_artists}`, "GET", null)).tracks;
   }
+
+  export const searchTracks = async (query: string) => {
+    return (await fetchWebApi(`v1/search?q=${query}&type=track&limit=1&offset=0&include_external=audio`, "GET", null)).tracks.items;
+  }
