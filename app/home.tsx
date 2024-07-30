@@ -29,6 +29,9 @@ type Track = {
   album: Album;
   preview_url: string;
   id: string;
+  external_urls: {
+    spotify: string;
+  };
 };
 
 type Album = {
@@ -57,6 +60,7 @@ type Playlist = {
     height: number;
     width: number;
   }[];
+  external_urls: { spotify: string };
 };
 
 export default function Details() {
@@ -85,6 +89,7 @@ export default function Details() {
     albumImage: string;
     music: string;
     id: string;
+    link: string;
   }[] = [];
   let trackHistory: {
     name: string;
@@ -92,12 +97,14 @@ export default function Details() {
     albumImage: string;
     music: string;
     id: string;
+    link: string;
   }[] = [];
 
   let playlistArray: {
     name: string;
     owner: string;
     image: string;
+    url : string;
   }[] = [];
 
 
@@ -135,13 +142,14 @@ export default function Details() {
     };
   }, []);
 
-  topTracks?.forEach(({ name, artists, album, preview_url, id }) => {
+  topTracks?.forEach(({ name, artists, album, preview_url, id, external_urls }) => {
       trackArtistArray.push({
         id: id,
         name: name,
         artists: artists.map((artist) => artist.name),
         albumImage: album.images[0].url,
         music: preview_url,
+        link: external_urls.spotify,
       });
     });
 
@@ -152,16 +160,18 @@ export default function Details() {
       artists: track.artists?.map((artist) => artist.name) || [],
       albumImage: track.album.images[0].url,
       music: track.preview_url,
+      link: track.external_urls.spotify,
     });
   });
 
   
 
-  playlists?.forEach(({ name, owner, images }) => {
+  playlists?.forEach(({ name, owner, images, external_urls }) => {
     playlistArray.push({
       name: name,
       owner: owner.display_name,
       image: images[0].url,
+      url : external_urls.spotify,
     });
   });
 
@@ -198,13 +208,13 @@ export default function Details() {
             <ScrollView paddingHorizontal={'$4'}>
               <YStack justifyContent="space-between" alignContent="space-between">
                 <XStack alignSelf="center" padding={'$4'}>
-                  <Text fontSize={'$9'} fontWeight={'600'} color={theme.gray12}>
+                  <Text fontSize={'$9'} fontWeight={'600'} color={'$color9'}>
                     Explore your music
                   </Text>
                 </XStack>
                 <View>
                   <XStack alignSelf="flex-start" padding={'$1'} paddingLeft={'$3'}>
-                    <Text fontSize={'$6'} fontWeight={'500'} color={theme.gray12}>
+                    <Text fontSize={'$6'} fontWeight={'500'} color={'$color11'}>
                       Recent top tracks
                     </Text>
                   </XStack>
@@ -220,6 +230,7 @@ export default function Details() {
                             trackId={track.id}
                             artists={track.artists.join(', ')}
                             image={track.albumImage}
+                            link={track.link}
                             animation="quick"
                             size="$4"
                             width={200}
@@ -235,7 +246,7 @@ export default function Details() {
                 </View>
                 <View>
                 <XStack alignSelf="flex-start" padding={'$1'} paddingLeft={'$3'}>
-                    <Text fontSize={'$6'} fontWeight={'500'} color={theme.gray12}>
+                    <Text fontSize={'$6'} fontWeight={'500'} color={'$color11'}>
                       Streaming history
                     </Text>
                   </XStack>
@@ -251,6 +262,7 @@ export default function Details() {
                             trackId={track.id}
                             artists={track.artists.join(', ')}
                             image={track.albumImage}
+                            link={track.music}
                             animation="quick"
                             size="$4"
                             width={200}
@@ -266,7 +278,7 @@ export default function Details() {
                 </View>
                 <View>
                   <XStack alignSelf="flex-start" padding={'$1'} paddingLeft={'$3'}>
-                    <Text fontSize={'$6'} fontWeight={'500'} color={theme.gray12}>
+                    <Text fontSize={'$6'} fontWeight={'500'} color={'$color11'}>
                       Created playlists
                     </Text>
                   </XStack>
@@ -277,6 +289,7 @@ export default function Details() {
                           <PlaylistCard
                             key={index}
                             title={track.name}
+                            link={track.url}
                             author={track.owner}
                             image={track.image}
                             animation="quick"

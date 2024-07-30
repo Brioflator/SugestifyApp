@@ -3,8 +3,9 @@ import { Button, Card, Text, Image, XStack, View, YStack, Progress } from 'tamag
 import { LinearGradient } from 'tamagui/linear-gradient';
 import { Audio } from 'expo-av';
 import { useEffect, useState } from 'react';
-import { Play, Pause, Heart, Check, X } from 'lucide-react-native';
+import { Play, Pause, Heart, Check, X, SquareArrowOutUpRight } from 'lucide-react-native';
 import { isLiked, likeTrack, unlikeTrack } from '~/utils/spotify';
+import { Linking } from 'react-native';
 
 interface MusicCardProps extends CardProps {
   trackId: string;
@@ -13,6 +14,7 @@ interface MusicCardProps extends CardProps {
   image: string;
   music: string;
   saveable?: boolean;
+  link: string;
 }
 
 export default function MusicCard({
@@ -21,6 +23,7 @@ export default function MusicCard({
   artists,
   image,
   music,
+  link,
   saveable = false,
   ...props
 }: MusicCardProps) {
@@ -110,8 +113,31 @@ export default function MusicCard({
     return result.length > 16 ? result.substring(0, 16) + '...' : result;
   };
 
+  const openLink = () => {
+    Linking.openURL(link).catch((err) => console.error('Error opening link:', err));
+  };
+
   return (
-    <View backgroundColor={'$color3'} borderRadius={'$2'}>
+    <View backgroundColor={'$color6'} borderRadius={'$2'}>
+      <View height={'$4'}>
+        <XStack justifyContent="space-between">
+          <View paddingHorizontal={'$3'} justifyContent='center' >
+              <Image
+                resizeMode="contain"
+                source={require('../assets/Spotify_Icon_RGB_White.png')}
+                style={{ height: 30, width: 30 }}
+                alignSelf='center'
+              />
+          </View>
+          <Button
+            circular
+            onPress={openLink}
+            backgroundColor={'rgba(0, 0, 0, 0)'}
+            pressStyle={{ borderWidth: '$-0.25', backgroundColor: '$color2' }}>
+            <SquareArrowOutUpRight color={'white'} />
+          </Button>
+        </XStack>
+      </View>
       <Card elevate size="$4" {...props}>
         <Card.Background borderRadius={'$2'}>
           <Image

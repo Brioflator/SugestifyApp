@@ -14,8 +14,8 @@ import {
 } from 'tamagui';
 import { useEffect, useState } from 'react';
 import { LinearGradient } from 'tamagui/linear-gradient';
-import { User } from 'lucide-react-native';
-import { Image, Pressable } from 'react-native';
+import { Search } from 'lucide-react-native';
+import { Image, Pressable, ActivityIndicator } from 'react-native';
 import { Link } from 'expo-router';
 import MusicCard from '~/components/MusicCard';
 import NavBar from '~/components/NavBar';
@@ -35,6 +35,9 @@ type Track = {
   album: Album;
   preview_url: string;
   id: string;
+  external_urls: {
+    spotify: string;
+  };
 };
 
 type Album = {
@@ -61,12 +64,14 @@ export default function Details() {
   const [error, setError] = useState<Error | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [nlpSuge, setNlpSuge] = useState<TrackNLP[][] | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (text: any) => {
     setInputValue(text);
   };
 
   const handleGoPress = async () => {
+    setLoading(true);
     try {
       console.log('began');
       const data = await fetchSongRecommendations(inputValue);
@@ -81,6 +86,8 @@ export default function Details() {
       } else {
         setError(new Error('Unknown error'));
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -127,6 +134,7 @@ export default function Details() {
     artists: string[];
     albumImage: string;
     music: string;
+    link: string;
   };
 
   const [suggestions, setSuggestions] = useState<Track[] | null>(null);
@@ -154,6 +162,7 @@ export default function Details() {
     artists: string[];
     albumImage: string;
     music: string;
+    link: string;
   }[] = [];
 
   suggestions?.map((track) => {
@@ -163,6 +172,7 @@ export default function Details() {
       artists: track.artists.map((artist) => artist.name),
       albumImage: track.album.images[0].url,
       music: track.preview_url,
+      link: track.external_urls.spotify,
     });
   });
 
@@ -194,13 +204,13 @@ export default function Details() {
             <ScrollView paddingHorizontal={'$0'}>
               <View padding={'$3'}>
                 <YStack justifyContent="space-between" alignContent="space-between">
-                  <XStack alignSelf="center" padding={'$4'}>
-                    <Text fontSize={'$9'} fontWeight={'600'} color={theme.gray12}>
+                  <XStack alignSelf="center">
+                    <Text fontSize={'$9'} fontWeight={'600'} color={'$color9'}>
                       Discover new music
                     </Text>
                   </XStack>
                   <YStack>
-                    <XStack alignItems="center" space="$2">
+                    <XStack alignItems="center" space="$2" paddingTop='$3'>
                       <Input
                         onChangeText={handleInputChange}
                         value={inputValue}
@@ -209,7 +219,7 @@ export default function Details() {
                         placeholder={`Enter Keywords`}
                       />
                       <Button onPress={handleGoPress} size={'$3'}>
-                        Go
+                      {loading ? <ActivityIndicator color="#fff" /> : <Search width={'20'} color={'white'} />}
                       </Button>
                     </XStack>
                     <Separator marginVertical={5} alignSelf="auto" borderColor={'rgba(0, 0, 0, 0)'} />
@@ -232,6 +242,7 @@ export default function Details() {
                                   trackId={track.id}
                                   artists={track.artists.join(', ')}
                                   image={track.albumImage}
+                                  link={track.link}
                                   animation="quick"
                                   size="$4"
                                   width={200}
@@ -269,6 +280,7 @@ export default function Details() {
                               trackId={track.id}
                               artists={track.artists.join(', ')}
                               image={track.albumImage}
+                              link={track.link}
                               animation="quick"
                               size="$4"
                               width={200}

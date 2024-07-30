@@ -55,6 +55,7 @@ type TrackInfo = {
     artists: string[];
     albumImage: string;
     music: string;
+    link: string;
   };
 
 
@@ -65,13 +66,14 @@ type TrackInfo = {
         const searchResult = await searchTracks(query);
         let trackArtistArray: TrackNLP[] = [];
         console.log(searchResult);
-        searchResult?.forEach((track: { id: any; name: any; artists: any[]; album: { images: { url: any; }[]; }; preview_url: any; }) => {
+        searchResult?.forEach((track: { id: any; name: any; artists: any[]; album: { images: { url: any; }[]; }; preview_url: any; external_urls:{spotify:any} }) => {
             trackArtistArray.push({
               id: track.id,
               name: track.name,
               artists: track.artists.map((artist: any) => artist.name),
               albumImage: track.album.images[0].url,
               music: track.preview_url,
+              link: track.external_urls.spotify
             });
           });
         return trackArtistArray;

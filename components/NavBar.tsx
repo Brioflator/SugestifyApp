@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Card, Text, Image, XStack, YStack, View } from 'tamagui';
 import { LinearGradient } from 'tamagui/linear-gradient';
-import { Home, LucideWandSparkles, AudioLines } from 'lucide-react-native';
+import { Home, LucideWandSparkles, Plus } from 'lucide-react-native';
 import { Link } from 'expo-router';
 
 export default function NavBar() {
@@ -25,9 +25,9 @@ export default function NavBar() {
         </YStack>
         <YStack alignItems="center">
         <Link href={{ pathname: '/analysis' }} asChild>
-          <AudioLines onPress={() => {}} color="white" />
+          <Plus onPress={() => {}} color="white" />
         </Link>
-          <Text color={'$gray12'} fontSize={'$2'}>Analysis</Text>
+          <Text color={'$gray12'} fontSize={'$2'}>Add</Text>
         </YStack>
         
       </XStack>
