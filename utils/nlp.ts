@@ -81,3 +81,26 @@ type TrackInfo = {
     );
     return trackSearchResults;
   }
+
+  export const addSong = async (song: string, artist: string, lyrics: string) => {
+    const entry: TrackInfo = { song, artist, lyrics };
+  
+    try {
+      const response = await fetch(`${API_BASE_URL}/add_song`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(entry),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Failed to add song:', error);
+    }
+  };

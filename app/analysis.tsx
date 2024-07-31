@@ -12,6 +12,7 @@ import MusicCard from '~/components/MusicCard';
 import NavBar from '~/components/NavBar';
 import NowPlaying from '~/components/NowPlaying';
 import { UserInfo } from '~/components/UserInfo';
+import { addSong } from '~/utils/nlp';
 
 interface UserProfile {
   images?: { url: string }[];
@@ -55,6 +56,8 @@ export default function Details() {
   const { name } = useLocalSearchParams();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [searchedLyrics, setSearchedLyrics] = useState('');
+  const [searchedSong, setSearchedSong] = useState('');
+  const [searchedArtist, setSearchedArtist] = useState('');
   const [inputValueArtist, setInputValueArtist] = useState('');
   const [inputValueSong, setInputValueSong] = useState('');
   const [searchedTracks, setSearchedTracks] = useState<Track[] | null>(null);
@@ -98,6 +101,8 @@ export default function Details() {
       const query = `track:${track.song} artist:${track.artist}`;
       const searchResult = await searchTracks(query);
       setSearchedLyrics(track.lyrics);
+      setSearchedSong(track.song);
+      setSearchedArtist(track.artist);
       setSearchedTracks(searchResult);
     } catch (error) {
       console.error('Error:', error);
@@ -222,7 +227,7 @@ export default function Details() {
                           //hoverStyle={{ scale: 0.5 }}
                           pressStyle={{ scale: 0.75 }}
                         />
-                        <Button height={'$5'} icon={<CloudUpload />} onPress={() => {}} size={'$4'}>
+                        <Button height={'$5'} icon={<CloudUpload />} onPress={() => addSong(searchedSong, searchedArtist, searchedLyrics)} size={'$4'}>
                           Add song
                         </Button>
                       </XStack>
