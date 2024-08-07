@@ -1,11 +1,10 @@
 {
   "expo": {
     "name": "Sugestify",
-    "slug": "Sugestify",
+    "slug": "sugestify",
     "version": "1.0.0",
-    "scheme": "Sugestify",
-    "projectNameForProxy": "@Brioflator/Sugestify",
-    "owner": "Brioflator",
+    "scheme": "sugestify",
+    "owner": "brioflator",
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -37,6 +36,15 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.brioflator.sugestify"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "2554ba80-a28b-4ad1-a33b-31ab602f2914"
       }
     }
   }

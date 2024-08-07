@@ -13,8 +13,8 @@ export const spotifyCredentials = {
   clientId: '757d66235c3242659d28f727bf3a3a6d',
   clientSecret: 'e5604468d39744ec86cd104a93849e5c',
   redirectUri: makeRedirectUri({
-    scheme: 'Sugestify://',
-    path: '/home',
+    scheme: 'sugestify',
+    path: 'home',
   }),
 };
 

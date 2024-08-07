@@ -26,8 +26,7 @@ export default function LogIn() {
       // this must be set to false
       usePKCE: false,
       redirectUri: makeRedirectUri({
-        scheme: 'Sugestify://',
-        path: '/home',
+        path: 'home',
       }),
     },
     discovery
@@ -35,7 +34,7 @@ export default function LogIn() {
 
   console.log(
     makeRedirectUri({
-      scheme: 'Sugestify://',
+      scheme: 'sugestify',
       path: '/home',
     })
   );
