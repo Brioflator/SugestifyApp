@@ -172,7 +172,7 @@ export default function Details() {
               <YStack justifyContent="space-between" alignContent="space-between">
                 <XStack alignSelf="center" padding={'$4'}>
                   <Text fontSize={'$9'} fontWeight={'600'} color={'$color9'}>
-                    Contibute to Sugestify
+                    Contribute to Sugestify
                   </Text>
                 </XStack>
                 <XStack alignItems="center" space="$2">
